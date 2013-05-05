@@ -13,6 +13,7 @@
 	<http access-denied-page="/login.jsp?authorization_error=true" xmlns="http://www.springframework.org/schema/security">
 		<intercept-url pattern="/sparklr/**" access="ROLE_USER" />
 		<intercept-url pattern="/facebook/**" access="ROLE_USER" />
+		<intercept-url pattern="/google/**" access="ROLE_USER" />
 		<intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 
 		<form-login authentication-failure-url="/login.jsp?authentication_error=true" default-target-url="/index.jsp"
@@ -47,6 +48,14 @@
 	<oauth:resource id="facebook" type="authorization_code" client-id="233668646673605" client-secret="33b17e044ee6a4fa383f46ec6e28ea1d"
 		authentication-scheme="query" access-token-uri="https://graph.facebook.com/oauth/access_token" user-authorization-uri="https://www.facebook.com/dialog/oauth"
 		token-name="oauth_token" client-authentication-scheme="form" />
+		
+	<oauth:resource id="google" type="authorization_code" use-current-uri="false"
+        client-id="yyy"
+        client-secret="xxx" authentication-scheme="query"
+        access-token-uri="https://accounts.google.com/o/oauth2/token"
+        user-authorization-uri="https://accounts.google.com/o/oauth2/auth"
+        client-authentication-scheme="form"
+        scope="https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email" pre-established-redirect-uri="http://localhost:8080/ResultToReport/displayprofiles" />
 
 	<context:property-placeholder location="classpath:/sparklr.properties" />
 
@@ -90,6 +99,32 @@
 	<bean id="facebookController" class="org.springframework.security.oauth.examples.tonr.mvc.FacebookController">
 		<property name="facebookRestTemplate">
 			<oauth:rest-template resource="facebook">
+				<property name="messageConverters">
+					<list>
+						<bean class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
+							<property name="supportedMediaTypes">
+								<list>
+									<bean class="org.springframework.http.MediaType">
+										<!--facebook sends its json as text/javascript for some reason -->
+										<constructor-arg value="text" />
+										<constructor-arg value="javascript" />
+									</bean>
+									<bean class="org.springframework.http.MediaType">
+										<constructor-arg value="application" />
+										<constructor-arg value="json" />
+									</bean>
+								</list>
+							</property>
+						</bean>
+					</list>
+				</property>
+			</oauth:rest-template>
+		</property>
+	</bean>
+	
+	<bean id="googleController" class="org.springframework.security.oauth.examples.tonr.mvc.GoogleController">
+		<property name="facebookRestTemplate">
+			<oauth:rest-template resource="google">
 				<property name="messageConverters">
 					<list>
 						<bean class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">

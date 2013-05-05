@@ -16,6 +16,7 @@
       </authz:authorize>
       <li><a href="<c:url value="/sparklr/photos"/>">sparklr pics</a></li>
       <li><a href="<c:url value="/facebook/info"/>">facebook friends</a></li>
+	  <li><a href="<c:url value="/google/info"/>">Google friends</a></li>
     </ul>
 
   <div id="content">
